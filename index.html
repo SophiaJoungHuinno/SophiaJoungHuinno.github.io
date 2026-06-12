@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sophia Joung — UX Designer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FFFFFF;
+    --text-primary: #111111;
+    --text-secondary: #555555;
+    --text-meta: #999999;
+    --accent: #111111;
+    --border: #F0F0F0;
+    --card-bg: #F8F8F8;
+    --brand: #203E5C;
+    --slide-pad-h: 48px;
+    --slide-pad-v: 32px;
+    --max-w: 900px;
+    --nav-h: 56px;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    overflow: hidden;
+  }
+
+  /* ─── TOP NAV ─────────────────────────────────────────────── */
+  #topnav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 clamp(16px, 4vw, 48px);
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    gap: 12px;
+  }
+
+  #nav-name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  #nav-phases {
+    display: flex;
+    gap: clamp(12px, 2.5vw, 28px);
+    align-items: center;
+  }
+
+  .phase-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-meta);
+    cursor: pointer;
+    padding-bottom: 3px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .phase-label.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--text-primary);
+  }
+
+  #nav-counter {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-meta);
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+    min-width: 48px;
+    text-align: right;
+  }
+
+  /* ─── SLIDE CONTAINER ────────────────────────────────────── */
+  #slides {
+    position: fixed;
+    top: var(--nav-h);
+    bottom: 40px;
+    left: 0; right: 0;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--slide-pad-v) clamp(16px, 5vw, 48px);
+    pointer-events: none;
+    transform: translateX(100%);
+    transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    background: var(--bg);
+  }
+  .slide.active {
+    pointer-events: all;
+    transform: translateX(0);
+  }
+  .slide.prev {
+    transform: translateX(-100%);
+  }
+
+  .slide-inner {
+    width: 100%;
+    max-width: var(--max-w);
+  }
+
+  /* ─── BOTTOM CONTROLS ────────────────────────────────────── */
+  #bottom-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .nav-btn {
+    width: 32px; height: 32px;
+    border: 1px solid var(--border);
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: background 0.2s;
+  }
+  .nav-btn:hover { background: var(--card-bg); }
+  .nav-btn:disabled { opacity: 0.25; cursor: default; }
+
+  #dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+  .dot.active {
+    background: var(--text-primary);
+    transform: scale(1.3);
+  }
+
+  /* ─── TYPOGRAPHY HELPERS ─────────────────────────────────── */
+  .meta-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-meta);
+    margin-bottom: 16px;
+  }
+
+  h1 { font-size: 42px; font-weight: 700; line-height: 1.15; }
+  h2 { font-size: 28px; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
+  h3 { font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 8px; }
+
+  p {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text-secondary);
+  }
+
+  .divider {
+    width: 40px;
+    height: 3px;
+    background: var(--text-primary);
+    margin: 20px 0;
+  }
+
+  /* two-col grid */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* card */
+  .card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  /* pull quote */
+  .quote {
+    border-left: 3px solid var(--text-primary);
+    padding: 12px 0 12px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+  .quote-attr {
+    font-size: 11px;
+    font-style: normal;
+    color: var(--text-meta);
+    margin-top: 6px;
+  }
+
+  /* tag chip */
+  .chip {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    margin: 4px 4px 4px 0;
+  }
+
+  /* insight number */
+  .insight-num {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  /* btn */
+  .btn {
+    display: inline-block;
+    background: var(--text-primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 24px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.75; }
+  .btn.secondary {
+    background: none;
+    color: var(--text-primary);
+    border: 1px solid var(--text-primary);
+  }
+
+  /* stat box */
+  .stat-box {
+    text-align: center;
+    padding: 20px 16px;
+    background: var(--card-bg);
+    border-radius: 10px;
+  }
+  .stat-box .stat-num {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-box .stat-label {
+    font-size: 11px;
+    color: var(--text-meta);
+    letter-spacing: 0.5px;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  /* persona card */
+  .persona-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .persona-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .persona-meta .name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .persona-meta .desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+  .persona-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .persona-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-meta);
+    margin-bottom: 10px;
+  }
+  .persona-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  .persona-item:last-child { border-bottom: none; }
+
+  /* decision block */
+  .decision-block {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 28px;
+  }
+  .decision-arrow {
+    font-size: 18px;
+    padding-top: 28px;
+    color: var(--text-meta);
+  }
+  .decision-box {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .decision-box.after {
+    background: var(--text-primary);
+    color: #fff;
+  }
+  .decision-box .box-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-meta);
+    margin-bottom: 8px;
+  }
+  .decision-box.after .box-label { color: rgba(255,255,255,0.5); }
+  .decision-box .box-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .decision-box.after .box-title { color: #fff; }
+
+  /* figma screen mockup */
+  .screen-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .phone-mockup {
+    width: 140px;
+    flex-shrink: 0;
+  }
+  .phone-mockup .phone-frame {
+    width: 100%;
+    aspect-ratio: 9/19;
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-mockup .phone-statusbar {
+    height: 20px;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .phone-mockup .phone-content {
+    flex: 1;
+    background: linear-gradient(180deg, #f5f5f5 0%, #ebebeb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--text-meta);
+    text-align: center;
+    padding: 8px;
+    line-height: 1.5;
+  }
+  .phone-mockup .phone-label {
+    font-size: 10px;
+    color: var(--text-meta);
+    text-align: center;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  /* wireframe box */
+  .wireframe-box {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .wf-row {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+  }
+  .wf-row.short { width: 40%; }
+  .wf-row.medium { width: 65%; }
+  .wf-row.full { width: 100%; }
+  .wf-block {
+    height: 48px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    width: 100%;
+  }
+
+  /* HMW */
+  .hmw-item {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 18px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .hmw-item::before {
+    content: "HMW";
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text-meta);
+    margin-right: 10px;
+  }
+
+  /* tags row */
+  .tags { margin: 12px 0; }
+
+  /* contact links */
+  .contact-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* cover specific */
+  #slide-0 {
+    background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  }
+  .cover-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-meta);
+    margin-bottom: 20px;
+  }
+  .cover-title {
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .cover-subtitle {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    line-height: 1.4;
+  }
+  .cover-tags { margin-bottom: 32px; }
+  .cover-meta-row {
+    display: flex;
+    gap: 32px;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+  .cover-meta-item .label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-meta);
+    margin-bottom: 4px;
+  }
+  .cover-meta-item .value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  /* Slide-specific overrides */
+  .problem-big {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+  .problem-big em {
+    font-style: normal;
+    text-decoration: underline;
+    text-decoration-color: var(--text-meta);
+    text-underline-offset: 4px;
+  }
+
+  .flow-diagram {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .flow-node {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+  .flow-node.highlight {
+    background: var(--text-primary);
+    color: #fff;
+    border-color: var(--text-primary);
+  }
+  .flow-arrow {
+    font-size: 16px;
+    color: var(--text-meta);
+  }
+
+  .reflection-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .reflection-item:last-child { border-bottom: none; }
+  .reflection-item h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .reflection-item p { font-size: 13px; }
+
+  /* iframe embed */
+  .embed-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    gap: 16px;
+    text-align: center;
+  }
+  .embed-icon {
+    font-size: 48px;
+    line-height: 1;
+  }
+
+  /* keyboard hint */
+  #key-hint {
+    position: fixed;
+    bottom: 48px;
+    right: 24px;
+    font-size: 10px;
+    color: var(--text-meta);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav id="topnav">
+  <span id="nav-name" onclick="goTo(0)">Sophia Joung</span>
+  <div id="nav-phases">
+    <span class="phase-label" data-phase="discover" onclick="goTo(2)">Discover</span>
+    <span class="phase-label" data-phase="define"    onclick="goTo(4)">Define</span>
+    <span class="phase-label" data-phase="develop"   onclick="goTo(6)">Develop</span>
+    <span class="phase-label" data-phase="deliver"   onclick="goTo(8)">Deliver</span>
+  </div>
+  <span id="nav-counter">01 / 12</span>
+</nav>
+
+<!-- SLIDES -->
+<div id="slides">
+
+  <!-- 0 · COVER -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-inner">
+      <p class="cover-eyebrow">UX Case Study · 2025–2026</p>
+      <h1 class="cover-title">Designing<br>MockInterview</h1>
+      <p class="cover-subtitle">From Insight to Interface — a two-sided marketplace<br>for mock interview coaching</p>
+      <div class="cover-tags">
+        <span class="chip">UX Research</span>
+        <span class="chip">Product Design</span>
+        <span class="chip">Prototyping</span>
+        <span class="chip">Double Diamond</span>
+        <span class="chip">Claude Code</span>
+        <span class="chip">Supabase</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <a href="./MockInterview-Demo.html" target="_blank" class="btn">View prototype →</a>
+        <button class="btn secondary" onclick="goTo(1)">Read the story</button>
+      </div>
+      <div class="cover-meta-row">
+        <div class="cover-meta-item">
+          <div class="label">Designer</div>
+          <div class="value">Sophia Joung</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Role</div>
+          <div class="value">UX Designer (Solo)</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Timeline</div>
+          <div class="value">2025 – 2026</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Status</div>
+          <div class="value">Prototype delivered · Ongoing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1 · THE PROBLEM -->
+  <div class="slide" id="slide-1">
+    <div class="slide-inner">
+      <p class="meta-label">The Problem</p>
+      <p class="problem-big">"I know I'm qualified —<br>but <em>I freeze</em> the moment the interview starts."</p>
+      <div class="divider"></div>
+
+      <div class="cols">
+        <div>
+          <p>For <strong>non-native English speakers</strong> entering the US job market, interviews are a double barrier. The language gap isn't just vocabulary — it's the inability to practice in realistic, high-stakes conditions.</p>
+
+          <p style="margin-top:12px;">Existing options are either too expensive (professional career coaches at $150+/hr) or too shallow (AI bots with no real human connection). Nothing in between.</p>
+
+          <div class="quote">
+            "I kept getting interviews. I kept getting ghosted. I couldn't tell if my English was the problem, or if I just didn't know how to interview."
+            <div class="quote-attr">— The question that started this project</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="stat-row" style="margin-top:0;">
+            <div class="stat-box">
+              <div class="stat-num">~1M</div>
+              <div class="stat-label">international students in the US entering the job market each year</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">$150</div>
+              <div class="stat-label">average cost of a single professional career coaching session</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">0</div>
+              <div class="stat-label">affordable two-sided marketplace bridging language + cultural gap</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <p class="persona-section-label">Opportunity</p>
+            <p style="font-size:13px;">A peer-to-peer platform where <strong>industry professionals</strong> offer affordable mock interviews and <strong>job seekers</strong> get real practice — with structured feedback.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 · RESEARCH (DISCOVER) -->
+  <div class="slide" id="slide-2">
+    <div class="slide-inner">
+      <p class="meta-label">◆ Discover — Research</p>
+      <h2>Understanding the people<br>behind the problem</h2>
+
+      <div class="cols">
+        <div>
+          <p>This project started from <strong>personal experience</strong> — I was the user I was designing for. After applying extensively, landing interviews, and repeatedly failing without understanding why, I started paying attention to the same pattern in peers around me.</p>
+          <p style="margin-top:10px;">I grounded the design in my own lived experience, informal conversations with others in the same situation, and a structured competitive analysis of existing platforms.</p>
+
+          <div class="quote">
+            "I've sent over 300 applications. I get some interviews — but I don't know what I'm doing wrong in them. Nobody tells you."
+            <div class="quote-attr">— Observed pattern among non-native speakers in US job market</div>
+          </div>
+          <div class="quote">
+            "I'd love to help people going through what I went through. I just have no platform to do it on."
+            <div class="quote-attr">— Observed pattern among professionals with immigrant backgrounds</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:12px;">
+            <p class="persona-section-label">How I grounded the design</p>
+            <p class="persona-item">Personal experience as target user</p>
+            <p class="persona-item">Peer conversations (informal, ongoing)</p>
+            <p class="persona-item">Competitive analysis (4 platforms)</p>
+            <p class="persona-item">Affinity diagramming of observed patterns</p>
+          </div>
+          <div class="card">
+            <p class="persona-section-label">Competitors Analyzed</p>
+            <p class="persona-item">interviewing.io — technical only, anonymous</p>
+            <p class="persona-item">Pramp — peer practice, no professional mentors</p>
+            <p class="persona-item">LinkedIn Learning — passive, no practice</p>
+            <p class="persona-item">Wonsulting — expensive, no marketplace model</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 · KEY FINDINGS (DISCOVER) -->
+  <div class="slide" id="slide-3">
+    <div class="slide-inner">
+      <p class="meta-label">◆ Discover — Key Findings</p>
+      <h2>3 things users<br>kept telling me</h2>
+      <div class="divider"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:8px;">
+        <div>
+          <div class="insight-num">01</div>
+          <h3>Affordability is the #1 blocker</h3>
+          <p>Every job seeker mentioned cost within the first two minutes. Professional coaching is seen as a luxury, not a tool.</p>
+          <p style="margin-top:10px;font-size:13px;color:var(--text-meta);">Consistently the first barrier mentioned — professional coaching is treated as a luxury.</p>
+        </div>
+        <div>
+          <div class="insight-num">02</div>
+          <h3>Feedback quality is more important than practice volume</h3>
+          <p>People don't want to repeat sessions — they want to know specifically what to fix. Generic feedback ("you did great!") is actively unhelpful and hard to act on.</p>
+          <p style="margin-top:10px;font-size:13px;color:var(--text-meta);">Knowing what's wrong matters more than just doing it again.</p>
+        </div>
+        <div>
+          <div class="insight-num">03</div>
+          <h3>Cultural fluency matters as much as English fluency</h3>
+          <p>Many people have strong English skills but struggle with US workplace norms — directness, self-promotion, "Tell me about yourself." It's not just language.</p>
+          <p style="margin-top:10px;font-size:13px;color:var(--text-meta);">The gap is behavioral and cultural, not just linguistic.</p>
+        </div>
+      </div>
+
+      <div class="quote" style="margin-top:28px;">
+        "It's not just language. It's learning to brag. In my culture, you don't talk about yourself like that."
+        <div class="quote-attr">— Participant #5, product manager from China</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 · USER PERSONA (DEFINE) -->
+  <div class="slide" id="slide-4">
+    <div class="slide-inner">
+      <p class="meta-label">◆ Define — User Personas</p>
+      <h2>Two users, same gap</h2>
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:-4px;margin-bottom:20px;">Different situations — but the same thing blocking them.</p>
+
+      <div class="cols">
+        <!-- Persona 1 -->
+        <div class="card">
+          <div class="persona-header" style="margin-bottom:16px;">
+            <div class="persona-avatar">🎓</div>
+            <div class="persona-meta">
+              <div class="name">김민준 · Minjun</div>
+              <div class="desc">MS student, Business / Real Estate<br>Age 26 · Final year · No US work experience</div>
+            </div>
+          </div>
+          <p class="persona-section-label">Situation</p>
+          <p class="persona-item" style="font-size:13px;">Uses connections to get interviews — then gets ghosted every time</p>
+          <p class="persona-item" style="font-size:13px;">Field dominated by white Americans; clients and employers are all US-native</p>
+          <p class="persona-item" style="font-size:13px;">Suspects his English is the problem, considering a speaking school</p>
+          <p class="persona-item" style="font-size:13px;">Stuck in a catch-22: needs experience to get experience</p>
+          <div class="quote" style="margin-top:12px;font-size:12px;">
+            "Maybe I should just go to a speaking school. But that feels like giving up on the job hunt for now."
+          </div>
+        </div>
+
+        <!-- Persona 2 -->
+        <div class="card">
+          <div class="persona-header" style="margin-bottom:16px;">
+            <div class="persona-avatar">🎨</div>
+            <div class="persona-meta">
+              <div class="name">김고은 · Goeun</div>
+              <div class="desc">BFA student, Design<br>Age 22 · Final year · K–12 educated in Korea</div>
+            </div>
+          </div>
+          <p class="persona-section-label">Situation</p>
+          <p class="persona-item" style="font-size:13px;">300+ applications sent · 6 interviews secured · 0 offers</p>
+          <p class="persona-item" style="font-size:13px;">Design requires storytelling — and storytelling requires cultural fluency</p>
+          <p class="persona-item" style="font-size:13px;">Doesn't think "my English is bad" — thinks "I don't know how to interview"</p>
+          <p class="persona-item" style="font-size:13px;">Extremely motivated; keeps hearing "you need US work experience first"</p>
+          <div class="quote" style="margin-top:12px;font-size:12px;">
+            "I'm not failing because I can't speak English. I'm failing because nobody ever taught me how to interview."
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;padding:20px 24px;">
+        <p class="persona-section-label">The shared insight</p>
+        <p style="font-size:14px;font-weight:500;color:var(--text-primary);line-height:1.6;">Both need the same thing: a safe place to practice American-style professional interviews, repeatedly, with someone who's been through it. That place doesn't exist yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 · PROBLEM STATEMENT + HMW (DEFINE) -->
+  <div class="slide" id="slide-5">
+    <div class="slide-inner" style="max-width:700px;">
+      <p class="meta-label">◆ Define — Problem Statement</p>
+      <div class="card" style="margin-bottom:32px;padding:32px;">
+        <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-meta);margin-bottom:12px;">Defined Problem Statement</p>
+        <p style="font-size:18px;font-weight:600;line-height:1.6;color:var(--text-primary);">Non-native English speakers in the US job market need an <u>affordable, structured way to practice real interviews</u> with experienced professionals — because the existing options are either too expensive, too shallow, or not culturally relevant.</p>
+      </div>
+
+      <p class="meta-label">How Might We…</p>
+
+      <div class="hmw-item">make professional mock interviews affordable without sacrificing quality or human connection?</div>
+      <div class="hmw-item">give interviewees feedback that is specific, culturally-aware, and actually actionable?</div>
+      <div class="hmw-item">motivate experienced professionals to become mentors without adding friction to their schedule?</div>
+    </div>
+  </div>
+
+  <!-- 6 · WIREFRAMES & FLOW (DEVELOP) -->
+  <div class="slide" id="slide-6">
+    <div class="slide-inner">
+      <p class="meta-label">◆ Develop — Wireframes & Flow</p>
+      <h2>From sketches to<br>structured screens</h2>
+
+      <div class="cols">
+        <div>
+          <p>I started with hand sketches to explore rough layout ideas, then moved to low-fidelity wireframes in Figma. The key constraint was a <strong>mobile-first, single-screen-at-a-time</strong> architecture with a 5-tab bottom nav.</p>
+
+          <p style="margin-top:12px;">The wireframes cover 53 screens organized into 10 flow groups (A–J prefix system): auth, onboarding survey, home, profile, interview tracker, booking, meeting, transcript, and recording. The booking flow alone spans 14 screens — from mentor discovery through scheduling, payment, and post-session review.</p>
+
+          <div class="flow-diagram" style="margin-top:20px;">
+            <div class="flow-node">Home</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node highlight">Mentor Profile</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">Schedule</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">Payment</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">Session</div>
+          </div>
+
+          <div class="flow-diagram" style="margin-top:10px;">
+            <div class="flow-node">Auth</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">Survey</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node highlight">Home</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">Sessions</div>
+          </div>
+        </div>
+
+        <div>
+          <p class="persona-section-label" style="margin-bottom:12px;">Early Wireframe — Home</p>
+          <div class="wireframe-box">
+            <div class="wf-row short"></div>
+            <div class="wf-block"></div>
+            <div class="wf-row medium"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="wf-block" style="height:64px;"></div>
+              <div class="wf-block" style="height:64px;"></div>
+            </div>
+            <div class="wf-row full"></div>
+            <div class="wf-row medium"></div>
+          </div>
+
+          <p class="persona-section-label" style="margin:16px 0 12px;">Key Design Questions at This Stage</p>
+          <div class="card">
+            <p class="persona-item" style="font-size:13px;">How do we surface the right mentor without search?</p>
+            <p class="persona-item" style="font-size:13px;">Where does session feedback live — during or after?</p>
+            <p class="persona-item" style="font-size:13px;">How does the expert onboarding work differently from user?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 · DESIGN DECISIONS (DEVELOP) -->
+  <div class="slide" id="slide-7">
+    <div class="slide-inner">
+      <p class="meta-label">◆ Develop — Design Decisions</p>
+      <h2>Why I chose this<br>over that</h2>
+
+      <div class="decision-block">
+        <div class="decision-box">
+          <div class="box-label">Before</div>
+          <div class="box-title">Session booking: 5-step form (details, schedule, type, payment, confirm)</div>
+          <p style="font-size:12px;color:var(--text-meta);margin-top:8px;">Users abandoned at step 3. Too much commitment too early.</p>
+        </div>
+        <div class="decision-arrow">→</div>
+        <div class="decision-box after">
+          <div class="box-label">After</div>
+          <div class="box-title">3-step flow: pick a slot → add context → pay. Confirm in one screen.</div>
+          <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:8px;">Reduced perceived friction; most detail moved to post-session.</p>
+        </div>
+      </div>
+
+      <div class="decision-block">
+        <div class="decision-box">
+          <div class="box-label">Before</div>
+          <div class="box-title">Feedback form: open text field after each session</div>
+          <p style="font-size:12px;color:var(--text-meta);margin-top:8px;">Mentors skipped it. Users got nothing useful.</p>
+        </div>
+        <div class="decision-arrow">→</div>
+        <div class="decision-box after">
+          <div class="box-label">After</div>
+          <div class="box-title">Structured debrief: 5 sliders + mandatory strengths/improvement fields</div>
+          <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:8px;">Mentors fill it out faster. Users get structured, comparable feedback.</p>
+        </div>
+      </div>
+
+      <div class="decision-block">
+        <div class="decision-box">
+          <div class="box-label">Before</div>
+          <div class="box-title">In-app video room: auto-generated Daily.co link + Session Recording + View Transcript</div>
+          <p style="font-size:12px;color:var(--text-meta);margin-top:8px;">Edge functions to create rooms, webhook for transcripts, recording storage pipeline — I had all of it built.</p>
+        </div>
+        <div class="decision-arrow">→</div>
+        <div class="decision-box after">
+          <div class="box-label">After</div>
+          <div class="box-title">Expert pastes their own Teams / Zoom / Meet link when accepting</div>
+          <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:8px;">Zero infrastructure. Same UX outcome. The app's value is matching + coaching quality, not video tech.</p>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--text-meta);margin-top:4px;font-style:italic;">I realized mid-build that I was constructing what amounts to a separate product — essentially Zoom. Cutting it was the right call.</p>
+    </div>
+  </div>
+
+  <!-- 8 · FINAL DESIGNS (DELIVER) -->
+  <div class="slide" id="slide-8">
+    <div class="slide-inner">
+      <p class="meta-label">◆ Deliver — Final Designs</p>
+      <h2>Key screens from<br>the prototype</h2>
+
+      <div class="screen-row">
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-statusbar"></div>
+            <div class="phone-content">Home Screen<br><br>Personalized mentor recommendations + upcoming session</div>
+          </div>
+          <div class="phone-label">Home</div>
+        </div>
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-statusbar"></div>
+            <div class="phone-content">Mentor Profile<br><br>Bio, expertise, availability, pricing + reviews</div>
+          </div>
+          <div class="phone-label">Mentor Profile</div>
+        </div>
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-statusbar"></div>
+            <div class="phone-content">Session Meeting<br><br>Video call + real-time notes + recording toggle</div>
+          </div>
+          <div class="phone-label">Session</div>
+        </div>
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-statusbar"></div>
+            <div class="phone-content">Session Summary<br><br>Structured feedback + strengths + areas to improve</div>
+          </div>
+          <div class="phone-label">Feedback</div>
+        </div>
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-statusbar"></div>
+            <div class="phone-content">Interview Tracker<br><br>Status-based pipeline for all job applications</div>
+          </div>
+          <div class="phone-label">Tracker</div>
+        </div>
+      </div>
+
+      <div class="cols" style="margin-top:20px;">
+        <div class="card">
+          <p class="persona-section-label">Design System</p>
+          <p class="persona-item" style="font-size:13px;">90/8/2 color ratio: White · Black · Navy (#203E5C)</p>
+          <p class="persona-item" style="font-size:13px;">Noto Sans exclusively — single typeface system</p>
+          <p class="persona-item" style="font-size:13px;">49px CTAs, 35px compact buttons — locked heights</p>
+          <p class="persona-item" style="font-size:13px;">Phosphor Icons — consistent icon language</p>
+        </div>
+        <div class="card">
+          <p class="persona-section-label">Prototype Scope</p>
+          <p class="persona-item" style="font-size:13px;">48+ screens, fully navigable</p>
+          <p class="persona-item" style="font-size:13px;">Complete user-side booking flow</p>
+          <p class="persona-item" style="font-size:13px;">Expert onboarding + dashboard</p>
+          <p class="persona-item" style="font-size:13px;">Interview Tracker with full CRUD</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 · LIVE PROTOTYPE (DELIVER) -->
+  <div class="slide" id="slide-9">
+    <div class="slide-inner" style="max-width:720px;">
+      <p class="meta-label">◆ Deliver — Prototype</p>
+      <h2>Try it yourself</h2>
+
+      <div class="cols">
+        <div>
+          <p>The prototype is a fully interactive single-file HTML application — no backend required for the demo. Every screen is navigable with realistic data.</p>
+          <p style="margin-top:12px;"><strong>Key flows to try:</strong></p>
+          <div class="card" style="margin-top:12px;">
+            <p class="persona-item" style="font-size:13px;">1. Sign up → complete survey → see personalized home</p>
+            <p class="persona-item" style="font-size:13px;">2. Browse mentor → schedule session → payment</p>
+            <p class="persona-item" style="font-size:13px;">3. Join session → debrief → view summary</p>
+            <p class="persona-item" style="font-size:13px;">4. Track applications in Interview Tracker</p>
+          </div>
+          <div style="margin-top:24px;display:flex;gap:12px;">
+            <a href="./MockInterview-Demo.html" target="_blank" class="btn">Open prototype →</a>
+          </div>
+        </div>
+        <div class="embed-container">
+          <div class="embed-icon">📱</div>
+          <p style="font-size:14px;font-weight:600;">MockInterview Demo</p>
+          <p style="font-size:12px;color:var(--text-meta);max-width:220px;">48+ screens · Interactive · Mobile-first</p>
+          <a href="./MockInterview-Demo.html" target="_blank" class="btn" style="margin-top:8px;">Launch →</a>
+          <p style="font-size:11px;color:var(--text-meta);">Opens in new tab</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 · REFLECTION (OUTRO) -->
+  <div class="slide" id="slide-10">
+    <div class="slide-inner" style="max-width:720px;">
+      <p class="meta-label">Reflection & Next Steps</p>
+      <h2>What I learned</h2>
+      <div class="divider"></div>
+
+      <div class="reflection-item">
+        <h4>The two-sided marketplace problem is real — and hard</h4>
+        <p>Designing for two distinct user types (job seekers + expert mentors) with conflicting needs taught me to keep personas separate. A feature that reduces friction for one side often adds friction for the other. Every decision required a tradeoff negotiation.</p>
+      </div>
+      <div class="reflection-item">
+        <h4>Research is never "done enough"</h4>
+        <p>My persona is still evolving. I started with 8 interviews, but I've since realized the mentor-side persona needs significantly more depth. I've marked ongoing research explicitly in the prototype rather than pretending it's complete.</p>
+      </div>
+      <div class="reflection-item">
+        <h4>Knowing when to stop building is a design skill</h4>
+        <p>At one point, the prototype had a full in-app video room: auto-generated meeting links via Daily.co, session recording, and a live transcript pipeline. I had built all of it. Then I realized I was constructing what amounts to Zoom — a separate product entirely. I replaced the whole system with one input field: the expert pastes their own Teams or Zoom link. Same UX outcome, zero infrastructure. The hardest part wasn't the technical work — it was recognizing that the work wasn't worth doing.</p>
+      </div>
+      <div class="reflection-item">
+        <h4>What I'd do differently</h4>
+        <p>I'd start with user testing earlier — ideally at the wireframe stage, before any visual polish. I got attached to certain design decisions before validating them, which cost time during the iteration phase.</p>
+      </div>
+
+      <div class="card" style="margin-top:24px;">
+        <p class="persona-section-label">What's next</p>
+        <p class="persona-item" style="font-size:13px;">Usability testing with 5 target users (recruiting in progress)</p>
+        <p class="persona-item" style="font-size:13px;">Deeper mentor-side research and persona refinement</p>
+        <p class="persona-item" style="font-size:13px;">Accessibility audit and WCAG 2.1 AA compliance pass</p>
+        <p class="persona-item" style="font-size:13px;">Mobile performance optimization and real backend integration</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 · ABOUT + CONTACT -->
+  <div class="slide" id="slide-11">
+    <div class="slide-inner" style="max-width:680px;text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:var(--card-bg);margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:36px;">👩‍🎨</div>
+      <h2 style="margin-bottom:8px;">Sophia Joung</h2>
+      <p style="font-size:15px;font-weight:500;color:var(--text-meta);letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;">UX Designer</p>
+
+      <p style="font-size:15px;line-height:1.8;color:var(--text-secondary);max-width:520px;margin:0 auto;">Final-year student at The Ohio State University studying Computer Science and Design, currently a Product Designer intern at Huinno. I take projects from zero to shipped — working across discovery, prototyping, and delivery.</p>
+
+      <p style="font-size:13px;color:var(--text-meta);margin-top:16px;line-height:1.7;">
+        "<em>UX Designer who takes projects from zero to shipped.</em>"
+      </p>
+
+      <div class="contact-links" style="justify-content:center;margin-top:32px;">
+        <a href="mailto:[your email]" class="btn">Email me</a>
+        <a href="https://linkedin.com/in/[your-profile]" target="_blank" class="btn secondary">LinkedIn</a>
+        <a href="[resume-link]" target="_blank" class="btn secondary">Resume PDF</a>
+      </div>
+
+      <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);">
+        <p style="font-size:11px;color:var(--text-meta);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">Skills &amp; Tools</p>
+        <div>
+          <span class="chip">Figma</span>
+          <span class="chip">User Research</span>
+          <span class="chip">Prototyping</span>
+          <span class="chip">Information Architecture</span>
+          <span class="chip">Usability Testing</span>
+          <span class="chip">Design Systems</span>
+          <span class="chip">HTML / CSS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /slides -->
+
+<!-- BOTTOM BAR -->
+<div id="bottom-bar">
+  <button class="nav-btn" id="btn-prev" onclick="prev()" disabled>←</button>
+  <div id="dots"></div>
+  <button class="nav-btn" id="btn-next" onclick="next()">→</button>
+</div>
+
+<div id="key-hint">← → to navigate</div>
+
+<script>
+  const TOTAL = 12;
+  const PHASE_MAP = {
+    0: null, 1: null,
+    2: 'discover', 3: 'discover',
+    4: 'define',   5: 'define',
+    6: 'develop',  7: 'develop',
+    8: 'deliver',  9: 'deliver',
+    10: null, 11: null
+  };
+  const DOT_PHASES = [
+    [0, 1],       // Intro
+    [2, 3],       // Discover
+    [4, 5],       // Define
+    [6, 7],       // Develop
+    [8, 9],       // Deliver
+    [10, 11],     // Outro
+  ];
+
+  let current = 0;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  DOT_PHASES.forEach((range, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.onclick = () => goTo(range[0]);
+    dotsEl.appendChild(dot);
+  });
+
+  function goTo(n) {
+    if (n < 0 || n >= TOTAL) return;
+    const prev = document.getElementById('slide-' + current);
+    const next = document.getElementById('slide-' + n);
+    if (!next) return;
+
+    prev.classList.remove('active');
+    if (n > current) prev.classList.add('prev');
+    setTimeout(() => prev.classList.remove('prev'), 400);
+
+    next.classList.remove('prev');
+    next.classList.add('active');
+    current = n;
+    update();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  function update() {
+    // counter
+    document.getElementById('nav-counter').textContent =
+      String(current + 1).padStart(2, '0') + ' / ' + String(TOTAL).padStart(2, '0');
+
+    // phase labels
+    const phase = PHASE_MAP[current];
+    document.querySelectorAll('.phase-label').forEach(el => {
+      el.classList.toggle('active', el.dataset.phase === phase);
+    });
+
+    // dots
+    const dotEls = dotsEl.querySelectorAll('.dot');
+    dotEls.forEach((dot, i) => {
+      const range = DOT_PHASES[i];
+      dot.classList.toggle('active', current >= range[0] && current <= range[1]);
+    });
+
+    // buttons
+    document.getElementById('btn-prev').disabled = current === 0;
+    document.getElementById('btn-next').disabled = current === TOTAL - 1;
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+  });
+
+  // Touch swipe
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) dx < 0 ? next() : prev();
+  });
+
+  update();
+</script>
+</body>
+</html>
